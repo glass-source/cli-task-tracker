@@ -78,13 +78,14 @@ public class TaskManager {
             if (!filter.equals("ALL")) TaskStatus.valueOf(filter);
 
             for (Task task : tasks) {
-                if (filter.equals("ALL") || filter.equals(task.getStatus()))
+                if (filter.equals("ALL") || filter.equals(task.getStatus())) {
                     System.out.println("Task: " + task.getDescription() + "\nStatus: " + task.getStatus() + "\nPriority: " + task.getPriority());
+                    System.out.println("--------------------");
+                }
             }
         } catch (Exception e) {
             System.out.print("Invalid task filter, use 'ALL' to list all tasks or 'Priority' to list them by priority. List of filters: \n-TODO \n-IN_PROGRESS \n-COMPLETE");
         }
-
     }
 
     // Method to obtain a string of tasks from tasks.json
