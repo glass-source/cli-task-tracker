@@ -39,7 +39,3 @@ cd cli-task-tracker
 > list all
 > delete 1
 ```
-
----
-
-You can now create a new README.md file in your repository with this content.
