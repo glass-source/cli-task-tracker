@@ -1,6 +1,6 @@
 # cli-task-tracker
 
-cli-task-tracker is a lightweight CLI tool to track tasks, made in Java for learning purposes.
+cli-task-tracker is a lightweight CLI tool to track tasks, made in Java for [learning purposes](https://roadmap.sh/projects/task-tracker).
 
 ## Features
 
