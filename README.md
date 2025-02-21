@@ -1,6 +1,6 @@
-# cli-task-tracker
+# clight
 
-cli-task-tracker is a lightweight CLI tool to track tasks, made in Java for [learning purposes](https://roadmap.sh/projects/task-tracker).
+clight is a lightweight CLI tool to track tasks. Made in Java for [learning purposes](https://roadmap.sh/projects/task-tracker).
 
 ## Features
 
@@ -17,8 +17,8 @@ cli-task-tracker is a lightweight CLI tool to track tasks, made in Java for [lea
 Clone the repository and compile the project:
 
 ```sh
-git clone https://github.com/glass-source/cli-task-tracker.git
-cd cli-task-tracker
+git clone https://github.com/glass-source/clight.git
+cd clight
 # Compile the project
 ```
 
