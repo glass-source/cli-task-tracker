@@ -146,7 +146,4 @@ public class TodoAppCLI {
         System.out.println("  help - Show this help message");
         System.out.println("  exit - Exit the application");
     }
-
-
-
 }

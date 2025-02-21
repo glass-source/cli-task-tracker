@@ -12,7 +12,7 @@ import java.util.List;
 
 public class TaskManager {
 
-    private List<Task> tasks;
+    private final List<Task> tasks;
     private final String filePath = "tasks.json";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 
@@ -64,32 +64,30 @@ public class TaskManager {
         try {
             filter = filter.toUpperCase();
 
+            if (filter.equals("PRIORITY")) {
+                List<Task> sortedTasks = new ArrayList<>(tasks);
+                sortedTasks.sort((t1, t2) -> t2.getPriority() - t1.getPriority());
+                for (Task task : sortedTasks) {
+                    System.out.println("Task: " + task.getDescription() + "\nStatus: " + task.getStatus() + "\nPriority: " + task.getPriority());
+                    System.out.println("--------------------");
+                }
+
+                return;
+            }
+
             if (!filter.equals("ALL")) TaskStatus.valueOf(filter);
 
             for (Task task : tasks) {
                 if (filter.equals("ALL") || filter.equals(task.getStatus()))
-                    System.out.println(task.getDescription() + ", Status: " + task.getStatus());
+                    System.out.println("Task: " + task.getDescription() + "\nStatus: " + task.getStatus() + "\nPriority: " + task.getPriority());
             }
         } catch (Exception e) {
-            System.out.print("Invalid task filter, use 'ALL' to list all tasks. List of filters: \n-TODO \n-IN_PROGRESS \n-COMPLETE");
+            System.out.print("Invalid task filter, use 'ALL' to list all tasks or 'Priority' to list them by priority. List of filters: \n-TODO \n-IN_PROGRESS \n-COMPLETE");
         }
 
     }
 
-    public void updateTask(int id, int priority, String description) {
-        Task task = getTaskById(id);
-        if (task == null) {
-            System.out.print("Task not found");
-            return;
-        }
-
-        task.setPriority(priority);
-        task.setDescription(description);
-        saveTasksToFile();
-        System.out.print("Task updated");
-    }
-
-
+    // Method to obtain a string of tasks from tasks.json
     private String readTasksFromFile() {
         try {
             Path path = Paths.get(filePath);
@@ -106,45 +104,55 @@ public class TaskManager {
         }
     }
 
+    // Method to convert tasks into a json string
     private String convertTasksToJson(List<Task> tasks) {
         StringBuilder jsonBuilder = new StringBuilder();
-        jsonBuilder.append("["); // Start JSON array
+        String indent = "  "; // 2 spaces per indentation level
+        jsonBuilder.append("[\n"); // Start JSON array with newline
 
         for (int i = 0; i < tasks.size(); i++) {
             Task task = tasks.get(i);
-            jsonBuilder.append("{"); // Start JSON object
+            jsonBuilder.append(indent).append("{\n"); // Indent task object
 
-            // Append task fields
-            appendField(jsonBuilder, "id", task.getId());
-            jsonBuilder.append(",");
-            appendField(jsonBuilder, "priority", task.getPriority());
-            jsonBuilder.append(",");
-            appendField(jsonBuilder, "description", escapeJson(task.getDescription()));
-            jsonBuilder.append(",");
-            appendField(jsonBuilder, "status", task.getStatus());
-            jsonBuilder.append(",");
-            appendField(jsonBuilder, "created", task.getCreated());
-            jsonBuilder.append(",");
-            appendField(jsonBuilder, "updated", task.getUpdated());
+            // Append task fields with increased indentation
+            String fieldIndent = indent.repeat(2);
+            appendField(jsonBuilder, fieldIndent, "id", task.getId());
+            appendField(jsonBuilder, fieldIndent, "priority", task.getPriority());
+            appendField(jsonBuilder, fieldIndent, "description", escapeJson(task.getDescription()));
+            appendField(jsonBuilder, fieldIndent, "status", task.getStatus());
+            appendField(jsonBuilder, fieldIndent, "created", task.getCreated());
+            appendField(jsonBuilder, fieldIndent, "updated", task.getUpdated());
+            fixTrailingComma(jsonBuilder);
+            jsonBuilder.append("\n").append(indent).append("}"); // Close task object
 
-            jsonBuilder.append("}"); // End JSON object
-
+            // Add comma unless it's the last task
             if (i < tasks.size() - 1) {
-                jsonBuilder.append(","); // Add comma between objects
+                jsonBuilder.append(",");
             }
+            jsonBuilder.append("\n");
         }
 
-        jsonBuilder.append("]"); // End JSON array
+        jsonBuilder.append("]"); // Close JSON array
         return jsonBuilder.toString();
     }
 
-    // Helper method to append a field
-    private void appendField(StringBuilder builder, String key, Object value) {
-        builder.append("\"").append(key).append("\":");
+    // Helper method to handle indentation
+    private void appendField(StringBuilder builder, String indent, String key, Object value) {
+        builder.append(indent)
+                .append("\"").append(key).append("\": ");
+
         if (value instanceof String) {
             builder.append("\"").append(value).append("\"");
         } else {
             builder.append(value);
+        }
+
+        builder.append(",\n"); // Temporary comma (we'll remove the last one later)
+    }
+
+    private void fixTrailingComma(StringBuilder builder) {
+        if (builder.length() >= 2) {
+            builder.delete(builder.length() - 2, builder.length()); // Remove ",\n"
         }
     }
 
@@ -159,7 +167,7 @@ public class TaskManager {
                 .replace("\t", "\\t");
     }
 
-    public void saveTasksToFile() {
+    private void saveTasksToFile() {
         try {
             String json = convertTasksToJson(tasks); // Use the StringBuilder method from earlier
             Path path = Paths.get(filePath);
@@ -195,7 +203,6 @@ public class TaskManager {
 
             Task task = parseTaskObject(taskString);
             if (task == null) continue;
-            if (task.getDescription() == null || task.getStatus() == null || task.getCreated() == null || task.getUpdated() == null) continue;
             tasks.add(task);
         }
 
@@ -242,6 +249,7 @@ public class TaskManager {
                         break;
                 }
             }
+            if (description == null || status == null || created == null || updated == null) return null;
 
             Task task = new Task(id, priority, description);
             task.setStatus(status);
