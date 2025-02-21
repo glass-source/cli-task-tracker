@@ -1,7 +1,3 @@
-Here is a draft for your README file based on the provided information:
-
----
-
 # cli-task-tracker
 
 cli-task-tracker is a lightweight CLI tool to track tasks, made in Java for learning purposes.
