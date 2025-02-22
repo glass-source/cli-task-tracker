@@ -40,10 +40,10 @@ public class TaskManager {
         saveTasksToFile();
     }
 
-    public void deleteTask(int id) {
+    public boolean deleteTask(int id) {
         if (tasks.isEmpty()) {
             System.out.print("No tasks to delete");
-            return;
+            return false;
         }
 
         tasks.removeIf(task -> task.getId() == id);
@@ -53,6 +53,7 @@ public class TaskManager {
         }
 
         saveTasksToFile();
+        return true;
     }
 
     public void listTasks(String filter) {

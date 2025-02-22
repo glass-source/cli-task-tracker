@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Task {
     private int id;
-    private int priority; //Low number means high priority
+    private int priority; //Low number means low priority
     private String description;
     private String status;
     private String created;
@@ -15,8 +15,8 @@ public class Task {
 
     public Task(int id, int priority, String description) {
         this.id = id;
-        this.priority = priority;
         this.description = description;
+        this.priority = Math.max(1, Math.min(priority, 10));
         this.status = TaskStatus.TODO.name();
         this.created = formattedNow();
         this.updated = formattedNow();
@@ -51,7 +51,7 @@ public class Task {
     }
 
     public void setPriority(int priority) {
-        this.priority = priority;
+        this.priority = Math.max(1, Math.min(priority, 10));
         this.updated = formattedNow();
     }
 

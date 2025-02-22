@@ -1,5 +1,6 @@
 package me.asunder;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class TodoAppCLI {
@@ -48,21 +49,35 @@ public class TodoAppCLI {
             case "help":
                 displayHelp();
                 break;
+            case "clear":
+                handleClearCommand();
+                break;
             default:
                 System.out.println("Unknown command. Type 'help' for a list of commands.");
         }
     }
 
+    private static void handleClearCommand() {
+        System.out.print("\033[H\033[2J"); // ANSI escape code to clear screen
+        System.out.flush(); // Ensure the output is flushed immediately
+    }
+
     private static void handleAddCommand(String arguments, TaskManager taskManager) {
-        String[] args = arguments.split("\\s+", 2); // Split into description and priority
-        if (args.length < 2) {
-            System.out.println("Usage: add <description> <priority>");
+        // Split arguments into parts (description + priority)
+        String[] tokens = arguments.split("\\s+");
+
+        // Require at least a description and priority
+        if (tokens.length < 2) {
+            System.out.println("Usage: add \"<description>\" <priority>");
             return;
         }
 
         try {
-            String description = args[0];
-            int priority = Integer.parseInt(args[1]);
+            // Extract priority (last token) and description (remaining tokens)
+            int priorityIndex = tokens.length - 1;
+            int priority = Integer.parseInt(tokens[priorityIndex]);
+            String description = String.join(" ", Arrays.copyOf(tokens, priorityIndex));
+
             taskManager.addTask(priority, description);
             System.out.println("Task added successfully.");
         } catch (NumberFormatException e) {
@@ -107,30 +122,29 @@ public class TodoAppCLI {
     }
 
     private static void handleUpdateDescriptionCommand(String arguments, TaskManager taskManager) {
-        String[] args = arguments.split("\\s+", 2);        // tus
-        if (args.length < 2) {
-            System.out.println("Usage: update <id> <description>");
+        // Split into ID and description
+        String[] parts = arguments.split("\\s+", 2); // Split into ID and the rest
+
+        if (parts.length < 2) {
+            System.out.println("Usage: update <id> \"<new description>\"");
             return;
         }
 
         try {
-            int id = Integer.parseInt(args[0]);
+            int id = Integer.parseInt(parts[0]);
             Task task = taskManager.getTaskById(id);
-            task.setDescription(args[1]);
-
-            System.out.println("Task description updated successfully.");
+            String newDescription = parts[1].trim();
+            task.setDescription(newDescription);
+            System.out.println("Description updated.");
         } catch (NumberFormatException e) {
             System.out.println("ID must be a number.");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Invalid syntaxes, do not use special characters in the description.");
         }
     }
 
     private static void handleDeleteCommand(String arguments, TaskManager taskManager) {
         try {
             int id = Integer.parseInt(arguments.trim());
-            taskManager.deleteTask(id);
-            System.out.println("Task deleted successfully.");
+            if (taskManager.deleteTask(id)) System.out.println("Task deleted successfully.");
         } catch (NumberFormatException e) {
             System.out.println("ID must be a number.");
         }
